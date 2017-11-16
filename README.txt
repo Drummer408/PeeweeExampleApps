@@ -1,0 +1,1 @@
+The purpose of this repository is showcase apps created while learning the Python ORM (Object Relational Mapper), Peewee.
