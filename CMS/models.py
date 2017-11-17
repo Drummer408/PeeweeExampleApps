@@ -33,8 +33,18 @@ class User(BaseModel):
                 title = title,
                 region = region,
                 is_admin = is_admin)
+            return True
         except IntegrityError:
-            print('\nUser already exists!\n')
+            return False
+
+    @classmethod
+    def get_user(cls, username):
+        user_content = None
+        try:
+            user_content = cls.get(cls.username == username)
+        except User.DoesNotExist:
+            pass
+        return user_content
 
     @staticmethod
     def generate_user_id():
@@ -45,10 +55,3 @@ class User(BaseModel):
             except User.DoesNotExist:
                 break
         return id
-
-def initialize():
-    db.connect()
-    db.create_tables([User], safe = True)
-
-if __name__ == "__main__":
-    initialize()
