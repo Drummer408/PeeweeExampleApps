@@ -14,37 +14,33 @@ class BaseModel(Model):
 class User(BaseModel):
     user_id = PrimaryKeyField()
     username = CharField(max_length = 12, unique = True)
-    password = CharField(max_length = 100)
     email = CharField(unique = True)
     join_date = DateTimeField(default = datetime.datetime.now)
     title = CharField(max_length = 70)
     region = CharField(max_length = 20)
-    is_admin = BooleanField(default = False)
     
     @classmethod
-    def create_user(cls, username, password, email, title, region, is_admin):
+    def create_user_record(cls, username, email, title, region):
         id = cls.generate_user_id()
         try:
             cls.create(
                 user_id = id,
                 username = username,
-                password = password,
                 email = email,
                 title = title,
-                region = region,
-                is_admin = is_admin)
+                region = region)
             return True
         except IntegrityError:
             return False
 
     @classmethod
-    def get_user(cls, username):
-        user_content = None
+    def get_user_record(cls, username):
+        user_record = None
         try:
-            user_content = cls.get(cls.username == username)
+            user_record = cls.get(cls.username == username)
         except User.DoesNotExist:
             pass
-        return user_content
+        return user_record
 
     @staticmethod
     def generate_user_id():
@@ -55,3 +51,31 @@ class User(BaseModel):
             except User.DoesNotExist:
                 break
         return id
+
+class Login(BaseModel):
+    username = ForeignKeyField(User, to_field = 'username')
+    password = CharField(max_length = 100)
+
+    @classmethod
+    def create_login_record(cls, username, password):
+        try:
+            cls.create(
+                username = username,
+                password = password
+            )
+            return True
+        except IntegrityError:
+            return False
+
+    @classmethod
+    def get_login_record(cls, username):
+        login_record = None
+        try:
+            login_record = cls.get(cls.username == username)
+        except Login.DoesNotExist:
+            pass
+        return login_record
+
+    @staticmethod
+    def validate_credentials(login_record, password):
+        return login_record != None and login_record.password == password

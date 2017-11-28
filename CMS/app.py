@@ -1,33 +1,33 @@
 #!/usr/bin/env python3
 
+import datetime
 import getpass
 
-from models import db, User
+from models import db, User, Login
 
 active_user = None
 
 def initialize():
     db.connect()
-    db.create_tables([User], safe = True)
+    db.create_tables([User, Login], safe = True)
 
 def login_loop():
     while True:
-        username = input('Enter username: ')
-        password = getpass.getpass('Enter password: ')
-        user_content = User.get_user(username)
-        if validate_credentials(user_content, password):
+        username = input('Enter username: ').strip()
+        password = getpass.getpass('Enter password: ').strip()
+        login_record = Login.get_login_record(username)
+        if Login.validate_credentials(login_record, password):
             break
         print('\nInvalid username or password. Please try again.\n')
-    active_user = user_content
-
-def validate_credentials(user_content, password):
-    return user_content != None and user_content.password == password
+    global active_user
+    active_user = User.get_user_record('Chris Khedoo')
 
 def menu_loop():
-    pass
+    print('Welcome, {}!                 {}'.format(active_user.username, datetime.datetime.now().strftime('%A %B %d, %Y %I:%M:%S%p')))
 
 if __name__ == "__main__":
     initialize()
-    User.create_user('Chris Khedoo', 'test123!', 'chriskhedoo@gmail.com', 'CEO/Chairman', 'US East', True)
+    User.create_user_record('Chris Khedoo', 'chriskhedoo@gmail.com', 'CEO/Chairman', 'US East')
+    Login.create_login_record('Chris Khedoo', 'test123!')
     login_loop()
     menu_loop()
